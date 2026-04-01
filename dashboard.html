@@ -1,0 +1,1282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Zentrix Pro Journal | All Markets</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@500;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #091118;
+      --bg-2: #0f1f2b;
+      --panel: rgba(14, 25, 34, 0.84);
+      --panel-2: rgba(18, 33, 44, 0.9);
+      --border: rgba(104, 200, 215, 0.22);
+      --text: #eaf8ff;
+      --muted: #8ea5b6;
+      --primary: #5dd8ca;
+      --primary-2: #4cb4f5;
+      --good: #4bd488;
+      --bad: #ff6f85;
+      --warn: #f3c86f;
+      --mono: "IBM Plex Mono", monospace;
+      --sans: "Syne", sans-serif;
+      --shadow: 0 16px 45px rgba(0, 0, 0, 0.35);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--sans);
+      color: var(--text);
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 0% -10%, rgba(93, 216, 202, 0.2), transparent 36%),
+        radial-gradient(circle at 100% 0%, rgba(76, 180, 245, 0.22), transparent 34%),
+        linear-gradient(140deg, var(--bg), var(--bg-2));
+      overflow-x: hidden;
+    }
+
+    .noise {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0.05;
+      background-image: radial-gradient(#fff 0.6px, transparent 0.6px);
+      background-size: 3px 3px;
+    }
+
+    .app {
+      width: min(1240px, 95vw);
+      margin: 24px auto 80px;
+    }
+
+    .hero {
+      background: linear-gradient(125deg, rgba(93, 216, 202, 0.12), rgba(76, 180, 245, 0.09));
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      padding: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(8px);
+    }
+
+    .title { font-size: clamp(1.6rem, 2.9vw, 2.5rem); font-weight: 800; letter-spacing: -0.03em; }
+    .sub { margin-top: 8px; color: var(--muted); font-family: var(--mono); font-size: 0.86rem; line-height: 1.6; max-width: 780px; }
+
+    .hero-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+
+    .chip {
+      border: 1px solid rgba(93, 216, 202, 0.34);
+      background: rgba(93, 216, 202, 0.11);
+      color: var(--primary);
+      border-radius: 999px;
+      padding: 8px 12px;
+      font-size: 0.72rem;
+      font-family: var(--mono);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 600;
+    }
+
+    .layout {
+      margin-top: 16px;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 14px;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 16px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(8px);
+    }
+
+    .tabs { display: flex; gap: 8px; flex-wrap: wrap; }
+
+    .tab-btn {
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--muted);
+      border-radius: 10px;
+      padding: 9px 14px;
+      cursor: pointer;
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      font-weight: 600;
+      transition: all 0.2s ease;
+    }
+
+    .tab-btn.active { background: rgba(93, 216, 202, 0.14); color: var(--primary); border-color: rgba(93, 216, 202, 0.5); }
+
+    .tab { display: none; }
+    .tab.active { display: block; animation: rise 0.35s ease; }
+
+    .section-title { font-size: 1rem; font-weight: 700; margin-bottom: 12px; }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+
+    .field { display: flex; flex-direction: column; gap: 6px; }
+
+    .field label {
+      font-size: 0.64rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-family: var(--mono);
+    }
+
+    input, select, textarea, button { font: inherit; color: var(--text); }
+
+    input, select, textarea {
+      background: var(--panel-2);
+      border: 1px solid rgba(104, 200, 215, 0.24);
+      border-radius: 10px;
+      padding: 10px;
+      font-size: 0.88rem;
+      outline: none;
+      transition: border-color 0.2s ease, transform 0.2s ease;
+    }
+
+    input:focus, select:focus, textarea:focus { border-color: var(--primary); transform: translateY(-1px); }
+
+    textarea { min-height: 72px; resize: vertical; }
+
+    .span-2 { grid-column: span 2; }
+    .span-4 { grid-column: span 4; }
+
+    .btn-row { margin-top: 12px; display: flex; gap: 8px; flex-wrap: wrap; }
+
+    button {
+      border: none;
+      border-radius: 10px;
+      padding: 10px 13px;
+      cursor: pointer;
+      font-size: 0.84rem;
+      font-weight: 700;
+      transition: transform 0.2s ease, opacity 0.2s ease;
+    }
+
+    button:hover { transform: translateY(-1px); }
+
+    .btn-main { background: linear-gradient(120deg, var(--primary), var(--primary-2)); color: #03141d; }
+    .btn-alt { background: rgba(243, 200, 111, 0.15); border: 1px solid rgba(243, 200, 111, 0.35); color: var(--warn); }
+    .btn-ghost { background: transparent; border: 1px solid var(--border); color: var(--muted); }
+    .btn-danger { background: transparent; border: 1px solid rgba(255, 111, 133, 0.4); color: var(--bad); }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 10px;
+    }
+
+    .stat {
+      background: rgba(9, 17, 24, 0.72);
+      border: 1px solid rgba(104, 200, 215, 0.16);
+      border-radius: 12px;
+      padding: 10px;
+    }
+
+    .stat small { color: var(--muted); font-family: var(--mono); font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.06em; }
+    .stat strong { display: block; margin-top: 6px; font-size: 1.05rem; font-weight: 800; }
+
+    .good { color: var(--good); }
+    .bad { color: var(--bad); }
+    .warn { color: var(--warn); }
+
+    .split {
+      margin-top: 12px;
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 10px;
+    }
+
+    .mini-card {
+      background: rgba(9, 17, 24, 0.72);
+      border: 1px solid rgba(104, 200, 215, 0.16);
+      border-radius: 12px;
+      padding: 10px;
+    }
+
+    .mini-title { font-size: 0.68rem; color: var(--muted); font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px; }
+
+    .bars { display: flex; align-items: flex-end; height: 115px; gap: 6px; }
+    .bar { flex: 1; min-height: 4px; border-radius: 5px 5px 0 0; }
+    .bar.pos { background: linear-gradient(180deg, #73e7a5, #2bb56a); }
+    .bar.neg { background: linear-gradient(180deg, #ff9aa9, #e25468); }
+
+    .eq-wrap { overflow: hidden; border-radius: 10px; border: 1px solid rgba(104, 200, 215, 0.16); background: rgba(12, 22, 30, 0.7); }
+    .eq-svg { width: 100%; height: 120px; display: block; }
+
+    .filters {
+      margin-top: 10px;
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 10px;
+    }
+
+    .table-wrap {
+      margin-top: 12px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow-x: auto;
+      background: rgba(9, 17, 24, 0.72);
+    }
+
+    table { width: 100%; min-width: 1150px; border-collapse: collapse; font-size: 0.82rem; }
+
+    th, td { padding: 10px; border-bottom: 1px solid rgba(104, 200, 215, 0.12); text-align: left; vertical-align: top; }
+
+    th {
+      background: rgba(18, 33, 44, 0.9);
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 0.63rem;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      position: sticky;
+      top: 0;
+    }
+
+    .pill {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-family: var(--mono);
+      font-size: 0.63rem;
+      font-weight: 600;
+    }
+
+    .pill.long { color: var(--good); background: rgba(75, 212, 136, 0.16); }
+    .pill.short { color: var(--bad); background: rgba(255, 111, 133, 0.15); }
+    .pill.win { color: var(--good); background: rgba(75, 212, 136, 0.16); }
+    .pill.loss { color: var(--bad); background: rgba(255, 111, 133, 0.15); }
+    .pill.be { color: var(--warn); background: rgba(243, 200, 111, 0.18); }
+
+    .empty { text-align: center; color: var(--muted); font-family: var(--mono); padding: 20px; }
+
+    .notes-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+
+    .save-note { font-family: var(--mono); font-size: 0.72rem; color: var(--muted); margin-top: 8px; }
+
+    .toast {
+      position: fixed;
+      bottom: 16px;
+      right: 16px;
+      padding: 10px 13px;
+      border-radius: 10px;
+      border: 1px solid rgba(104, 200, 215, 0.3);
+      background: rgba(9, 17, 24, 0.94);
+      color: var(--primary);
+      font-family: var(--mono);
+      font-size: 0.74rem;
+      display: none;
+      z-index: 200;
+    }
+
+    .modal {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0, 0, 0, 0.62);
+      z-index: 300;
+      padding: 14px;
+    }
+
+    .modal.open { display: flex; }
+
+    .modal-card {
+      width: min(900px, 95vw);
+      max-height: 90vh;
+      overflow-y: auto;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: rgba(9, 17, 24, 0.96);
+      padding: 14px;
+    }
+
+    .modal-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .tiny { margin-top: 8px; color: var(--muted); font-family: var(--mono); font-size: 0.76rem; line-height: 1.45; }
+
+    @keyframes rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+    @media (max-width: 1100px) {
+      .stats-grid { grid-template-columns: repeat(3, 1fr); }
+      .split { grid-template-columns: 1fr; }
+      .form-grid { grid-template-columns: repeat(3, 1fr); }
+      .span-4 { grid-column: span 3; }
+      .filters { grid-template-columns: repeat(3, 1fr); }
+    }
+
+    @media (max-width: 760px) {
+      .hero { flex-direction: column; align-items: flex-start; }
+      .form-grid { grid-template-columns: repeat(2, 1fr); }
+      .span-2 { grid-column: span 2; }
+      .span-4 { grid-column: span 2; }
+      .notes-grid { grid-template-columns: 1fr; }
+      .filters { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 520px) {
+      .app { width: 96vw; }
+      .form-grid, .filters { grid-template-columns: 1fr; }
+      .span-2, .span-4 { grid-column: span 1; }
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+  <div class="noise"></div>
+  <main class="app">
+    <section class="hero">
+      <div>
+        <div class="title">Zentrix Pro Journal</div>
+        <p class="sub">All-in-one local trading journal for all markets: Crypto, Forex, Stocks, Commodities, Indices, Options, and Futures. Includes dashboard, journal, notes, analytics, edit workflow, and local backup restore.</p>
+      </div>
+      <div class="hero-actions">
+        <span class="chip">Local First</span>
+        <span class="chip">Offline Ready</span>
+      </div>
+    </section>
+
+    <section class="layout">
+      <article class="panel">
+        <div class="tabs">
+          <button class="tab-btn active" data-tab="dashboard">Dashboard</button>
+          <button class="tab-btn" data-tab="journal">Journal</button>
+          <button class="tab-btn" data-tab="notes">Notes</button>
+          <button class="tab-btn" data-tab="analytics">Analytics</button>
+        </div>
+      </article>
+
+      <article class="panel tab active" id="tab-dashboard">
+        <div class="section-title">Performance Snapshot</div>
+        <div class="stats-grid" id="stats-grid"></div>
+        <div class="split">
+          <div class="mini-card">
+            <div class="mini-title">Recent R Performance</div>
+            <div class="bars" id="r-bars"></div>
+          </div>
+          <div class="mini-card">
+            <div class="mini-title">Equity Curve (R)</div>
+            <div class="eq-wrap"><svg class="eq-svg" viewBox="0 0 400 120" id="equity-svg"></svg></div>
+          </div>
+        </div>
+        <p class="tiny" id="edge-insight">Add trades to generate insights.</p>
+      </article>
+
+      <article class="panel tab" id="tab-journal">
+        <div class="section-title">Log / Manage Trades</div>
+        <div class="form-grid" id="trade-form-grid">
+          <div class="field"><label>Date</label><input id="f-date" type="date" /></div>
+          <div class="field"><label>Market</label>
+            <select id="f-market">
+              <option>Crypto</option><option>Forex</option><option>Stocks</option><option>Commodities</option><option>Indices</option><option>Options</option><option>Futures</option>
+            </select>
+          </div>
+          <div class="field"><label>Symbol</label><input id="f-symbol" placeholder="BTCUSDT / EURUSD / AAPL" /></div>
+          <div class="field"><label>Direction</label><select id="f-direction"><option value="LONG">LONG</option><option value="SHORT">SHORT</option></select></div>
+
+          <div class="field"><label>Entry</label><input id="f-entry" type="number" step="any" placeholder="0.00" /></div>
+          <div class="field"><label>Exit</label><input id="f-exit" type="number" step="any" placeholder="0.00" /></div>
+          <div class="field"><label>Stop Loss</label><input id="f-stop" type="number" step="any" placeholder="0.00" /></div>
+          <div class="field"><label>Risk $</label><input id="f-risk" type="number" step="any" placeholder="100" /></div>
+
+          <div class="field"><label>Size</label><input id="f-size" type="number" step="any" placeholder="1" /></div>
+          <div class="field"><label>Fees $</label><input id="f-fees" type="number" step="any" placeholder="0" /></div>
+          <div class="field"><label>Account $</label><input id="f-account" type="number" step="any" placeholder="10000" /></div>
+          <div class="field"><label>Timeframe</label><input id="f-timeframe" placeholder="15m / 1h / 4h" /></div>
+          <div class="field"><label>Setup Tag</label><input id="f-setup" placeholder="Breakout / Pullback" /></div>
+
+          <div class="field"><label>Planned Entry</label><input id="f-plan-entry" type="number" step="any" placeholder="Plan" /></div>
+          <div class="field"><label>Planned Stop</label><input id="f-plan-stop" type="number" step="any" placeholder="Plan" /></div>
+          <div class="field"><label>Planned Target</label><input id="f-plan-target" type="number" step="any" placeholder="Plan" /></div>
+          <div class="field"><label>Strategy ID</label><input id="f-strategy" placeholder="S1 / ICT-01 / ORB" /></div>
+
+          <div class="field span-2"><label>Emotion</label>
+            <select id="f-emotion">
+              <option value="">Select</option>
+              <option>Calm</option><option>Confident</option><option>Greedy</option><option>Fearful</option><option>FOMO</option><option>Revenge</option><option>Frustrated</option>
+            </select>
+          </div>
+          <div class="field span-2"><label>Tags (comma separated)</label><input id="f-tags" placeholder="A+, NY session, trend" /></div>
+          <div class="field span-4"><label>Notes</label><textarea id="f-notes" placeholder="What happened in this trade?"></textarea></div>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn-main" id="add-trade-btn">+ Add Trade</button>
+          <button class="btn-alt" id="export-json-btn">Export JSON</button>
+          <button class="btn-alt" id="export-csv-btn">Export CSV</button>
+          <button class="btn-ghost" id="import-btn">Import JSON</button>
+          <button class="btn-danger" id="clear-trades-btn">Clear Trades</button>
+          <input type="file" id="import-file" accept="application/json" hidden />
+        </div>
+
+        <div class="filters">
+          <div class="field"><label>Search Symbol</label><input id="flt-symbol" placeholder="BTC / EUR / GOLD" /></div>
+          <div class="field"><label>Market</label><select id="flt-market"><option value="ALL">All</option><option>Crypto</option><option>Forex</option><option>Stocks</option><option>Commodities</option><option>Indices</option><option>Options</option><option>Futures</option></select></div>
+          <div class="field"><label>Direction</label><select id="flt-direction"><option value="ALL">All</option><option value="LONG">LONG</option><option value="SHORT">SHORT</option></select></div>
+          <div class="field"><label>Result</label><select id="flt-result"><option value="ALL">All</option><option>WIN</option><option>LOSS</option><option>BE</option></select></div>
+          <div class="field"><label>Sort</label><select id="flt-sort"><option value="new">Newest</option><option value="old">Oldest</option><option value="best">Best R</option><option value="worst">Worst R</option></select></div>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Date</th><th>Market</th><th>Symbol</th><th>Dir</th><th>Entry</th><th>Exit</th><th>PnL%</th><th>R</th><th>Net $</th><th>Outcome</th><th>Grade</th><th>Plan RR</th><th>Adherence</th><th>Setup</th><th>Emotion</th><th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="trade-rows"></tbody>
+          </table>
+        </div>
+
+        <p class="tiny">Storage key: <span id="storage-key"></span>. Data remains on your machine unless exported/imported manually.</p>
+      </article>
+
+      <article class="panel tab" id="tab-notes">
+        <div class="section-title">Journal Notes</div>
+        <div class="notes-grid">
+          <div class="field"><label>Lessons</label><textarea id="n-lessons" placeholder="What did I learn?"></textarea></div>
+          <div class="field"><label>Mistakes</label><textarea id="n-mistakes" placeholder="What mistake repeated?"></textarea></div>
+          <div class="field"><label>Rules</label><textarea id="n-rules" placeholder="Rules I must follow"></textarea></div>
+          <div class="field"><label>Market Read</label><textarea id="n-market" placeholder="Bias, levels, context"></textarea></div>
+        </div>
+        <div class="save-note" id="notes-status">Notes auto-save enabled.</div>
+      </article>
+
+      <article class="panel tab" id="tab-analytics">
+        <div class="section-title">Deep Analytics</div>
+        <div class="split">
+          <div class="mini-card">
+            <div class="mini-title">Performance By Market</div>
+            <div id="by-market"></div>
+          </div>
+          <div class="mini-card">
+            <div class="mini-title">Performance By Setup</div>
+            <div id="by-setup"></div>
+          </div>
+        </div>
+        <div class="split" style="margin-top:10px;">
+          <div class="mini-card">
+            <div class="mini-title">Emotion Impact</div>
+            <div id="by-emotion"></div>
+          </div>
+          <div class="mini-card">
+            <div class="mini-title">Consistency Check</div>
+            <div id="consistency"></div>
+          </div>
+        </div>
+        <div class="split" style="margin-top:10px;">
+          <div class="mini-card">
+            <div class="mini-title">Business Risk Policy</div>
+            <div class="form-grid" style="grid-template-columns:repeat(3,1fr);">
+              <div class="field"><label>Max Risk %</label><input id="p-max-risk-pct" type="number" step="any" /></div>
+              <div class="field"><label>Min RR</label><input id="p-min-rr" type="number" step="any" /></div>
+              <div class="field"><label>Max Fees % of Risk</label><input id="p-max-fees-pct" type="number" step="any" /></div>
+              <div class="field"><label>Daily Loss Cap %</label><input id="p-daily-loss-pct" type="number" step="any" /></div>
+              <div class="field"><label>Max Consecutive Losses</label><input id="p-max-consec-loss" type="number" step="1" /></div>
+              <div class="field"><label>Policy Scope</label><select id="p-scope"><option value="ALL">All Markets</option><option value="SINGLE">Single Market</option></select></div>
+              <div class="field span-2"><label>Scoped Market (when Single)</label><select id="p-scope-market"><option>Crypto</option><option>Forex</option><option>Stocks</option><option>Commodities</option><option>Indices</option><option>Options</option><option>Futures</option></select></div>
+            </div>
+            <div class="btn-row" style="margin-top:8px;"><button class="btn-ghost" id="save-policy-btn">Save Policy</button></div>
+          </div>
+          <div class="mini-card">
+            <div class="mini-title">Execution Governance</div>
+            <div id="governance"></div>
+          </div>
+        </div>
+      </article>
+    </section>
+  </main>
+
+  <div class="modal" id="edit-modal">
+    <div class="modal-card">
+      <div class="modal-head">
+        <div class="section-title">Edit Trade</div>
+        <button class="btn-ghost" id="close-edit-btn">Close</button>
+      </div>
+      <div class="form-grid" id="edit-form-grid"></div>
+      <div class="btn-row">
+        <button class="btn-main" id="save-edit-btn">Save Changes</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const KEY_TRADES = "zentrix.journal.v2.trades";
+    const KEY_NOTES = "zentrix.journal.v2.notes";
+    const KEY_POLICY = "zentrix.journal.v2.policy";
+    const fmt = new Intl.NumberFormat("en-US", { maximumFractionDigits: 2 });
+
+    const DEFAULT_POLICY = {
+      maxRiskPct: 1,
+      minRR: 1.5,
+      maxFeesPctOfRisk: 10,
+      dailyLossCapPct: 3,
+      maxConsecutiveLosses: 3,
+      scope: "ALL",
+      scopeMarket: "Crypto"
+    };
+
+    const state = {
+      trades: loadJSON(KEY_TRADES, []),
+      notes: loadJSON(KEY_NOTES, { lessons: "", mistakes: "", rules: "", market: "" }),
+      policy: { ...DEFAULT_POLICY, ...loadJSON(KEY_POLICY, DEFAULT_POLICY) },
+      editingId: null
+    };
+
+    const refs = {
+      tabs: document.querySelectorAll(".tab-btn"),
+      tabBodies: {
+        dashboard: document.getElementById("tab-dashboard"),
+        journal: document.getElementById("tab-journal"),
+        notes: document.getElementById("tab-notes"),
+        analytics: document.getElementById("tab-analytics")
+      },
+      storageKey: document.getElementById("storage-key"),
+      statsGrid: document.getElementById("stats-grid"),
+      rBars: document.getElementById("r-bars"),
+      equitySvg: document.getElementById("equity-svg"),
+      edgeInsight: document.getElementById("edge-insight"),
+      tradeRows: document.getElementById("trade-rows"),
+      byMarket: document.getElementById("by-market"),
+      bySetup: document.getElementById("by-setup"),
+      byEmotion: document.getElementById("by-emotion"),
+      consistency: document.getElementById("consistency"),
+      governance: document.getElementById("governance"),
+      notesStatus: document.getElementById("notes-status"),
+      toast: document.getElementById("toast"),
+      editModal: document.getElementById("edit-modal"),
+      editFormGrid: document.getElementById("edit-form-grid")
+    };
+
+    const form = {
+      date: document.getElementById("f-date"), market: document.getElementById("f-market"), symbol: document.getElementById("f-symbol"), direction: document.getElementById("f-direction"),
+      entry: document.getElementById("f-entry"), exit: document.getElementById("f-exit"), stop: document.getElementById("f-stop"), risk: document.getElementById("f-risk"),
+      size: document.getElementById("f-size"), fees: document.getElementById("f-fees"), account: document.getElementById("f-account"), timeframe: document.getElementById("f-timeframe"), setup: document.getElementById("f-setup"),
+      planEntry: document.getElementById("f-plan-entry"), planStop: document.getElementById("f-plan-stop"), planTarget: document.getElementById("f-plan-target"), strategy: document.getElementById("f-strategy"),
+      emotion: document.getElementById("f-emotion"), tags: document.getElementById("f-tags"), notes: document.getElementById("f-notes")
+    };
+
+    const flt = {
+      symbol: document.getElementById("flt-symbol"), market: document.getElementById("flt-market"), direction: document.getElementById("flt-direction"),
+      result: document.getElementById("flt-result"), sort: document.getElementById("flt-sort")
+    };
+
+    function loadJSON(key, fallback) {
+      try {
+        const raw = localStorage.getItem(key);
+        return raw ? JSON.parse(raw) : fallback;
+      } catch {
+        return fallback;
+      }
+    }
+
+    function saveJSON(key, value) {
+      localStorage.setItem(key, JSON.stringify(value));
+    }
+
+    function notify(msg) {
+      refs.toast.textContent = msg;
+      refs.toast.style.display = "block";
+      setTimeout(() => { refs.toast.style.display = "none"; }, 1300);
+    }
+
+    function toNum(v) {
+      const n = Number(v);
+      return Number.isFinite(n) ? n : 0;
+    }
+
+    function today() {
+      return new Date().toISOString().split("T")[0];
+    }
+
+    function resultFromPnl(pnlPct) {
+      if (Math.abs(pnlPct) < 0.01) return "BE";
+      return pnlPct > 0 ? "WIN" : "LOSS";
+    }
+
+    function gradeFromScore(score) {
+      if (score >= 90) return "A";
+      if (score >= 75) return "B";
+      if (score >= 60) return "C";
+      if (score >= 45) return "D";
+      return "F";
+    }
+
+    function detectOutcome(result, r, violations, confidence) {
+      if (violations.includes("INVALID_STOP_SIDE")) return "INVALID_SETUP";
+      if (result === "BE") return confidence >= 75 ? "DISCIPLINED_SCRATCH" : "NOISY_SCRATCH";
+      if (result === "WIN" && r >= 3) return "OUTLIER_WIN";
+      if (result === "WIN" && r >= 1.5 && violations.length === 0) return "CLEAN_WIN";
+      if (result === "WIN") return "WEAK_WIN";
+      if (result === "LOSS" && violations.length === 0) return "VALID_STOP_LOSS";
+      return "RULE_BREAK_LOSS";
+    }
+
+    function policyAppliesToTrade(t) {
+      if (state.policy.scope === "ALL") return true;
+      return t.market === state.policy.scopeMarket;
+    }
+
+    function calcMetrics(t) {
+      const dirSign = t.direction === "SHORT" ? -1 : 1;
+      const pnlPct = t.entry ? ((t.exit - t.entry) / t.entry) * 100 * dirSign : 0;
+      const riskPerUnit = Math.abs(t.entry - t.stop);
+      const rewardPerUnit = Math.abs(t.exit - t.entry);
+      const r = riskPerUnit > 0 ? (rewardPerUnit / riskPerUnit) * (pnlPct >= 0 ? 1 : -1) : 0;
+      const grossDollar = t.risk * r;
+      const netDollar = grossDollar - t.fees;
+
+      const riskPct = t.account > 0 ? (t.risk / t.account) * 100 : 0;
+      const stopSideInvalid = (t.direction === "LONG" && t.stop >= t.entry) || (t.direction === "SHORT" && t.stop <= t.entry);
+      const feeRiskPct = t.risk > 0 ? (t.fees / t.risk) * 100 : 0;
+      const policyOnThisTrade = policyAppliesToTrade(t);
+
+      const hasPlan = t.planEntry > 0 && t.planStop > 0 && t.planTarget > 0;
+      const planRiskPerUnit = hasPlan ? Math.abs(t.planEntry - t.planStop) : 0;
+      const planRewardPerUnit = hasPlan ? Math.abs(t.planTarget - t.planEntry) : 0;
+      const planRR = planRiskPerUnit > 0 ? (planRewardPerUnit / planRiskPerUnit) : 0;
+      const entryDriftPct = hasPlan && t.planEntry > 0 ? Math.abs((t.entry - t.planEntry) / t.planEntry) * 100 : 0;
+      const stopDriftPct = hasPlan && t.planStop > 0 ? Math.abs((t.stop - t.planStop) / t.planStop) * 100 : 0;
+      const adherenceScore = hasPlan ? Math.max(0, 100 - ((entryDriftPct * 14) + (stopDriftPct * 10))) : 0;
+
+      const violations = [];
+      if (!t.stop || t.stop === t.entry) violations.push("NO_STOP");
+      if (stopSideInvalid) violations.push("INVALID_STOP_SIDE");
+      if (policyOnThisTrade && riskPct > state.policy.maxRiskPct) violations.push("RISK_ABOVE_POLICY");
+      if (policyOnThisTrade && Math.abs(r) < state.policy.minRR && resultFromPnl(pnlPct) === "WIN") violations.push("LOW_RR_WIN");
+      if (policyOnThisTrade && feeRiskPct > state.policy.maxFeesPctOfRisk) violations.push("HIGH_FEES");
+      if (hasPlan && planRR > 0 && planRR < state.policy.minRR) violations.push("LOW_PLAN_RR");
+      if (hasPlan && adherenceScore < 70) violations.push("LOW_PLAN_ADHERENCE");
+
+      let confidence = 45;
+      if (t.stop) confidence += 20;
+      if (t.risk > 0) confidence += 10;
+      if (t.setup) confidence += 8;
+      if (t.timeframe) confidence += 7;
+      if (t.emotion) confidence += 5;
+      confidence = Math.max(0, Math.min(100, confidence));
+
+      let qualityScore = 100;
+      qualityScore -= violations.length * 12;
+      if (Math.abs(r) >= state.policy.minRR && resultFromPnl(pnlPct) === "WIN") qualityScore += 6;
+      if (resultFromPnl(pnlPct) === "LOSS" && violations.length === 0) qualityScore += 4;
+      if (hasPlan && adherenceScore >= 85) qualityScore += 8;
+      qualityScore = Math.max(0, Math.min(100, qualityScore));
+
+      const result = resultFromPnl(pnlPct);
+      const outcome = detectOutcome(result, r, violations, confidence);
+
+      return {
+        pnlPct: Number(pnlPct.toFixed(2)),
+        r: Number(r.toFixed(2)),
+        netDollar: Number(netDollar.toFixed(2)),
+        result,
+        riskPct: Number(riskPct.toFixed(2)),
+        confidence,
+        qualityScore,
+        qualityGrade: gradeFromScore(qualityScore),
+        feeRiskPct: Number(feeRiskPct.toFixed(2)),
+        planRR: Number(planRR.toFixed(2)),
+        adherenceScore: Number(adherenceScore.toFixed(0)),
+        violations,
+        outcome
+      };
+    }
+
+    function addTrade() {
+      const base = {
+        id: crypto.randomUUID(),
+        createdAt: Date.now(),
+        date: form.date.value || today(),
+        market: form.market.value,
+        symbol: form.symbol.value.trim().toUpperCase(),
+        direction: form.direction.value,
+        entry: toNum(form.entry.value),
+        exit: toNum(form.exit.value),
+        stop: toNum(form.stop.value),
+        risk: toNum(form.risk.value),
+        size: toNum(form.size.value),
+        fees: toNum(form.fees.value),
+        account: toNum(form.account.value),
+        planEntry: toNum(form.planEntry.value),
+        planStop: toNum(form.planStop.value),
+        planTarget: toNum(form.planTarget.value),
+        strategy: form.strategy.value.trim(),
+        timeframe: form.timeframe.value.trim(),
+        setup: form.setup.value.trim(),
+        emotion: form.emotion.value,
+        tags: form.tags.value.trim(),
+        notes: form.notes.value.trim()
+      };
+
+      if (!base.symbol || !base.entry || !base.exit) {
+        alert("Please fill Symbol, Entry, Exit.");
+        return;
+      }
+
+      const metrics = calcMetrics(base);
+      state.trades.push({ ...base, ...metrics });
+      saveJSON(KEY_TRADES, state.trades);
+      clearForm();
+      renderAll();
+      notify("Trade logged");
+    }
+
+    function clearForm() {
+      ["symbol", "entry", "exit", "stop", "risk", "size", "fees", "account", "planEntry", "planStop", "planTarget", "strategy", "timeframe", "setup", "emotion", "tags", "notes"].forEach(k => {
+        form[k].value = "";
+      });
+    }
+
+    function filteredTrades() {
+      const symbol = flt.symbol.value.trim().toUpperCase();
+      const market = flt.market.value;
+      const direction = flt.direction.value;
+      const result = flt.result.value;
+
+      let out = state.trades.filter(t => {
+        if (symbol && !t.symbol.includes(symbol)) return false;
+        if (market !== "ALL" && t.market !== market) return false;
+        if (direction !== "ALL" && t.direction !== direction) return false;
+        if (result !== "ALL" && t.result !== result) return false;
+        return true;
+      });
+
+      const sort = flt.sort.value;
+      if (sort === "new") out.sort((a, b) => b.createdAt - a.createdAt);
+      if (sort === "old") out.sort((a, b) => a.createdAt - b.createdAt);
+      if (sort === "best") out.sort((a, b) => b.r - a.r);
+      if (sort === "worst") out.sort((a, b) => a.r - b.r);
+      return out;
+    }
+
+    function renderRows() {
+      const items = filteredTrades();
+      if (!items.length) {
+        refs.tradeRows.innerHTML = '<tr><td colspan="16" class="empty">No trades found.</td></tr>';
+        return;
+      }
+
+      refs.tradeRows.innerHTML = items.map(t => {
+        const pnlClass = t.pnlPct >= 0 ? "good" : "bad";
+        const rClass = t.r >= 0 ? "good" : "bad";
+        const dollarClass = t.netDollar >= 0 ? "good" : "bad";
+        return `
+          <tr>
+            <td>${t.date}</td>
+            <td>${t.market}</td>
+            <td><strong>${t.symbol}</strong></td>
+            <td><span class="pill ${t.direction === "LONG" ? "long" : "short"}">${t.direction}</span></td>
+            <td>${fmt.format(t.entry)}</td>
+            <td>${fmt.format(t.exit)}</td>
+            <td class="${pnlClass}">${t.pnlPct >= 0 ? "+" : ""}${t.pnlPct}%</td>
+            <td class="${rClass}">${t.r >= 0 ? "+" : ""}${t.r}R</td>
+            <td class="${dollarClass}">${t.netDollar >= 0 ? "+$" : "-$"}${fmt.format(Math.abs(t.netDollar))}</td>
+            <td><span class="pill ${t.result.toLowerCase()}">${t.outcome || t.result}</span></td>
+            <td>${t.qualityGrade || "-"} (${t.qualityScore ?? 0})</td>
+            <td>${t.planRR ? t.planRR.toFixed(2) : "-"}</td>
+            <td class='${(t.adherenceScore || 0) >= 80 ? "good" : "warn"}'>${t.adherenceScore ? `${t.adherenceScore}%` : "-"}</td>
+            <td>${t.setup || "-"}</td>
+            <td>${t.emotion || "-"}</td>
+            <td>
+              <button class="btn-ghost" data-edit="${t.id}">Edit</button>
+              <button class="btn-danger" data-del="${t.id}">Del</button>
+            </td>
+          </tr>
+        `;
+      }).join("");
+
+      refs.tradeRows.querySelectorAll("button[data-del]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const id = btn.getAttribute("data-del");
+          state.trades = state.trades.filter(x => x.id !== id);
+          saveJSON(KEY_TRADES, state.trades);
+          renderAll();
+        });
+      });
+
+      refs.tradeRows.querySelectorAll("button[data-edit]").forEach(btn => {
+        btn.addEventListener("click", () => openEdit(btn.getAttribute("data-edit")));
+      });
+    }
+
+    function stat(label, value, cls) {
+      return `<div class="stat"><small>${label}</small><strong class="${cls || ""}">${value}</strong></div>`;
+    }
+
+    function renderStats() {
+      const arr = state.trades;
+      if (!arr.length) {
+        refs.statsGrid.innerHTML = [
+          stat("Total Trades", "0"), stat("Win Rate", "0%"), stat("Net PnL", "0%"),
+          stat("Expectancy", "0R"), stat("Profit Factor", "0"), stat("Net $", "$0")
+        ].join("");
+        refs.edgeInsight.textContent = "Add trades to generate insights.";
+        return;
+      }
+
+      const wins = arr.filter(t => t.result === "WIN");
+      const losses = arr.filter(t => t.result === "LOSS");
+      const be = arr.filter(t => t.result === "BE");
+      const winRate = (wins.length / arr.length) * 100;
+      const netPnl = arr.reduce((s, t) => s + t.pnlPct, 0);
+      const avgR = arr.reduce((s, t) => s + t.r, 0) / arr.length;
+      const winR = wins.reduce((s, t) => s + t.r, 0);
+      const lossAbs = Math.abs(losses.reduce((s, t) => s + t.r, 0));
+      const pf = lossAbs > 0 ? (winR / lossAbs) : Infinity;
+      const netDollar = arr.reduce((s, t) => s + t.netDollar, 0);
+      const avgQuality = arr.reduce((s, t) => s + (t.qualityScore || 0), 0) / arr.length;
+
+      refs.statsGrid.innerHTML = [
+        stat("Total Trades", String(arr.length)),
+        stat("Win Rate", `${winRate.toFixed(1)}%`, winRate >= 50 ? "good" : "bad"),
+        stat("Net PnL", `${netPnl >= 0 ? "+" : ""}${netPnl.toFixed(2)}%`, netPnl >= 0 ? "good" : "bad"),
+        stat("Expectancy", `${avgR >= 0 ? "+" : ""}${avgR.toFixed(2)}R`, avgR >= 0 ? "good" : "bad"),
+        stat("Profit Factor", pf === Infinity ? "INF" : pf.toFixed(2), pf >= 1.3 ? "good" : "warn"),
+        stat("Execution Grade", `${gradeFromScore(avgQuality)} (${avgQuality.toFixed(0)})`, avgQuality >= 75 ? "good" : "warn")
+      ].join("");
+
+      const msg = `W:${wins.length} L:${losses.length} BE:${be.length}. ` +
+        (avgR > 0.2 ? "Edge looks positive." : "Edge is weak; tighten entries and risk discipline.");
+      refs.edgeInsight.textContent = msg;
+    }
+
+    function renderBars() {
+      const recent = [...state.trades].sort((a, b) => b.createdAt - a.createdAt).slice(0, 14).reverse();
+      if (!recent.length) {
+        refs.rBars.innerHTML = "";
+        return;
+      }
+      const maxAbs = Math.max(...recent.map(x => Math.abs(x.r)), 0.5);
+      refs.rBars.innerHTML = recent.map(x => {
+        const h = Math.max(6, Math.abs(x.r) / maxAbs * 100);
+        const cls = x.r >= 0 ? "pos" : "neg";
+        return `<div class="bar ${cls}" style="height:${h}px" title="${x.symbol} ${x.r}R"></div>`;
+      }).join("");
+    }
+
+    function renderEquity() {
+      const svg = refs.equitySvg;
+      const list = [...state.trades].sort((a, b) => a.createdAt - b.createdAt);
+      if (!list.length) {
+        svg.innerHTML = "<text x='12' y='22' fill='#8ea5b6' font-size='12' font-family='IBM Plex Mono'>No data</text>";
+        return;
+      }
+
+      const eq = [];
+      let run = 0;
+      list.forEach(t => { run += t.r; eq.push(run); });
+
+      const min = Math.min(...eq);
+      const max = Math.max(...eq);
+      const span = Math.max(max - min, 1);
+      const pad = 10;
+      const width = 400 - pad * 2;
+      const height = 120 - pad * 2;
+      const points = eq.map((v, i) => {
+        const x = pad + (i / Math.max(eq.length - 1, 1)) * width;
+        const y = pad + (1 - (v - min) / span) * height;
+        return `${x},${y}`;
+      }).join(" ");
+
+      svg.innerHTML = `
+        <line x1='10' y1='110' x2='390' y2='110' stroke='rgba(142,165,182,0.3)' stroke-width='1'/>
+        <polyline fill='none' stroke='${eq[eq.length - 1] >= 0 ? "#4bd488" : "#ff6f85"}' stroke-width='2.5' points='${points}'/>
+      `;
+    }
+
+    function groupSummary(byKey) {
+      const map = {};
+      state.trades.forEach(t => {
+        const k = t[byKey] || "Unknown";
+        if (!map[k]) map[k] = { n: 0, r: 0, pnl: 0 };
+        map[k].n += 1;
+        map[k].r += t.r;
+        map[k].pnl += t.pnlPct;
+      });
+      return Object.entries(map)
+        .sort((a, b) => b[1].r - a[1].r)
+        .map(([k, v]) => ({ key: k, n: v.n, r: v.r, pnl: v.pnl }));
+    }
+
+    function renderSummaryList(el, data) {
+      if (!data.length) {
+        el.innerHTML = "<div class='tiny'>No data yet</div>";
+        return;
+      }
+      el.innerHTML = data.slice(0, 8).map(row => {
+        const cls = row.r >= 0 ? "good" : "bad";
+        return `<div class='tiny'><strong>${row.key}</strong> | Trades: ${row.n} | <span class='${cls}'>${row.r >= 0 ? "+" : ""}${row.r.toFixed(2)}R</span></div>`;
+      }).join("");
+    }
+
+    function renderAnalytics() {
+      renderSummaryList(refs.byMarket, groupSummary("market"));
+      renderSummaryList(refs.bySetup, groupSummary("setup"));
+      renderSummaryList(refs.byEmotion, groupSummary("emotion"));
+
+      const arr = state.trades;
+      if (!arr.length) {
+        refs.consistency.innerHTML = "<div class='tiny'>No consistency data yet</div>";
+        return;
+      }
+
+      const last10 = [...arr].sort((a, b) => b.createdAt - a.createdAt).slice(0, 10);
+      const avgR = last10.reduce((s, t) => s + t.r, 0) / last10.length;
+      const maxDD = calcMaxDrawdown(last10.map(t => t.r));
+      const violationCount = arr.reduce((s, t) => s + ((t.violations || []).length > 0 ? 1 : 0), 0);
+      const violationRate = arr.length ? (violationCount / arr.length) * 100 : 0;
+      const avgConfidence = arr.reduce((s, t) => s + (t.confidence || 0), 0) / arr.length;
+      const firm = evaluateFirmRules(arr);
+      refs.consistency.innerHTML = `
+        <div class='tiny'>Last 10 Avg R: <strong class='${avgR >= 0 ? "good" : "bad"}'>${avgR >= 0 ? "+" : ""}${avgR.toFixed(2)}R</strong></div>
+        <div class='tiny'>Max Drawdown (R): <strong class='warn'>-${maxDD.toFixed(2)}R</strong></div>
+      `;
+      refs.governance.innerHTML = `
+        <div class='tiny'>Scope: <strong>${state.policy.scope === "ALL" ? "All Markets" : `Single (${state.policy.scopeMarket})`}</strong></div>
+        <div class='tiny'>Policy Violations: <strong class='${violationRate <= 20 ? "good" : "bad"}'>${violationRate.toFixed(1)}%</strong></div>
+        <div class='tiny'>Avg Detection Confidence: <strong class='${avgConfidence >= 75 ? "good" : "warn"}'>${avgConfidence.toFixed(0)}%</strong></div>
+        <div class='tiny'>Worst Daily Loss: <strong class='warn'>$${fmt.format(firm.worstDayLoss)}</strong></div>
+        <div class='tiny'>Risk Lock: <strong class='${firm.lockTriggered ? "bad" : "good"}'>${firm.lockTriggered ? `Triggered (${firm.lockReason} on ${firm.lockAt})` : "Clear"}</strong></div>
+        <div class='tiny'>Business Readiness: <strong class='${(100 - violationRate) * 0.4 + avgConfidence * 0.6 >= 75 ? "good" : "warn"}'>${(((100 - violationRate) * 0.4 + avgConfidence * 0.6)).toFixed(0)}/100</strong></div>
+      `;
+    }
+
+    function calcMaxDrawdown(rList) {
+      let peak = 0;
+      let equity = 0;
+      let dd = 0;
+      rList.forEach(r => {
+        equity += r;
+        if (equity > peak) peak = equity;
+        dd = Math.max(dd, peak - equity);
+      });
+      return dd;
+    }
+
+    function evaluateFirmRules(trades) {
+      const sorted = [...trades].sort((a, b) => a.createdAt - b.createdAt);
+      let consecutiveLosses = 0;
+      let lockTriggered = false;
+      let lockReason = "None";
+      let lockAt = null;
+      const dayLossMap = {};
+
+      sorted.forEach(t => {
+        if (!policyAppliesToTrade(t)) return;
+
+        if (!dayLossMap[t.date]) dayLossMap[t.date] = 0;
+        if (t.netDollar < 0) dayLossMap[t.date] += Math.abs(t.netDollar);
+
+        const dayCap = t.account > 0 ? (state.policy.dailyLossCapPct / 100) * t.account : Infinity;
+        if (!lockTriggered && dayLossMap[t.date] > dayCap) {
+          lockTriggered = true;
+          lockReason = "DAILY_LOSS_CAP";
+          lockAt = t.date;
+        }
+
+        if (t.result === "LOSS") consecutiveLosses += 1;
+        else consecutiveLosses = 0;
+
+        if (!lockTriggered && consecutiveLosses >= state.policy.maxConsecutiveLosses) {
+          lockTriggered = true;
+          lockReason = "CONSECUTIVE_LOSSES";
+          lockAt = t.date;
+        }
+      });
+
+      return {
+        lockTriggered,
+        lockReason,
+        lockAt,
+        worstDayLoss: Object.values(dayLossMap).length ? Math.max(...Object.values(dayLossMap)) : 0,
+        dayLossMap
+      };
+    }
+
+    function openEdit(id) {
+      const t = state.trades.find(x => x.id === id);
+      if (!t) return;
+      state.editingId = id;
+      refs.editFormGrid.innerHTML = `
+        <div class='field'><label>Date</label><input id='e-date' type='date' value='${t.date}' /></div>
+        <div class='field'><label>Market</label><input id='e-market' value='${escapeHtml(t.market)}' /></div>
+        <div class='field'><label>Symbol</label><input id='e-symbol' value='${escapeHtml(t.symbol)}' /></div>
+        <div class='field'><label>Direction</label><select id='e-direction'><option value='LONG'>LONG</option><option value='SHORT'>SHORT</option></select></div>
+
+        <div class='field'><label>Entry</label><input id='e-entry' type='number' step='any' value='${t.entry}' /></div>
+        <div class='field'><label>Exit</label><input id='e-exit' type='number' step='any' value='${t.exit}' /></div>
+        <div class='field'><label>Stop</label><input id='e-stop' type='number' step='any' value='${t.stop}' /></div>
+        <div class='field'><label>Risk</label><input id='e-risk' type='number' step='any' value='${t.risk}' /></div>
+
+        <div class='field'><label>Planned Entry</label><input id='e-plan-entry' type='number' step='any' value='${t.planEntry || 0}' /></div>
+        <div class='field'><label>Planned Stop</label><input id='e-plan-stop' type='number' step='any' value='${t.planStop || 0}' /></div>
+        <div class='field'><label>Planned Target</label><input id='e-plan-target' type='number' step='any' value='${t.planTarget || 0}' /></div>
+        <div class='field'><label>Strategy</label><input id='e-strategy' value='${escapeHtml(t.strategy || "")}' /></div>
+
+        <div class='field'><label>Size</label><input id='e-size' type='number' step='any' value='${t.size}' /></div>
+        <div class='field'><label>Fees</label><input id='e-fees' type='number' step='any' value='${t.fees}' /></div>
+        <div class='field'><label>Account</label><input id='e-account' type='number' step='any' value='${t.account || 0}' /></div>
+        <div class='field'><label>Setup</label><input id='e-setup' value='${escapeHtml(t.setup || "")}' /></div>
+        <div class='field'><label>Emotion</label><input id='e-emotion' value='${escapeHtml(t.emotion || "")}' /></div>
+
+        <div class='field span-2'><label>Timeframe</label><input id='e-timeframe' value='${escapeHtml(t.timeframe || "")}' /></div>
+        <div class='field span-2'><label>Tags</label><input id='e-tags' value='${escapeHtml(t.tags || "")}' /></div>
+        <div class='field span-4'><label>Notes</label><textarea id='e-notes'>${escapeHtml(t.notes || "")}</textarea></div>
+      `;
+      document.getElementById("e-direction").value = t.direction;
+      refs.editModal.classList.add("open");
+    }
+
+    function saveEdit() {
+      if (!state.editingId) return;
+      const idx = state.trades.findIndex(x => x.id === state.editingId);
+      if (idx === -1) return;
+
+      const base = {
+        ...state.trades[idx],
+        date: document.getElementById("e-date").value || today(),
+        market: document.getElementById("e-market").value.trim() || "Crypto",
+        symbol: document.getElementById("e-symbol").value.trim().toUpperCase(),
+        direction: document.getElementById("e-direction").value,
+        entry: toNum(document.getElementById("e-entry").value),
+        exit: toNum(document.getElementById("e-exit").value),
+        stop: toNum(document.getElementById("e-stop").value),
+        risk: toNum(document.getElementById("e-risk").value),
+        planEntry: toNum(document.getElementById("e-plan-entry").value),
+        planStop: toNum(document.getElementById("e-plan-stop").value),
+        planTarget: toNum(document.getElementById("e-plan-target").value),
+        strategy: document.getElementById("e-strategy").value.trim(),
+        size: toNum(document.getElementById("e-size").value),
+        fees: toNum(document.getElementById("e-fees").value),
+        account: toNum(document.getElementById("e-account").value),
+        setup: document.getElementById("e-setup").value.trim(),
+        emotion: document.getElementById("e-emotion").value.trim(),
+        timeframe: document.getElementById("e-timeframe").value.trim(),
+        tags: document.getElementById("e-tags").value.trim(),
+        notes: document.getElementById("e-notes").value.trim()
+      };
+
+      const m = calcMetrics(base);
+      state.trades[idx] = { ...base, ...m };
+      saveJSON(KEY_TRADES, state.trades);
+      refs.editModal.classList.remove("open");
+      state.editingId = null;
+      renderAll();
+      notify("Trade updated");
+    }
+
+    function exportJSON() {
+      const blob = new Blob([JSON.stringify(state.trades, null, 2)], { type: "application/json" });
+      download(blob, `zentrix-trades-${Date.now()}.json`);
+    }
+
+    function exportCSV() {
+      if (!state.trades.length) {
+        alert("No trades to export");
+        return;
+      }
+      const headers = ["date", "market", "symbol", "direction", "entry", "exit", "stop", "risk", "size", "fees", "account", "planEntry", "planStop", "planTarget", "strategy", "timeframe", "setup", "emotion", "tags", "pnlPct", "r", "netDollar", "result", "outcome", "qualityScore", "qualityGrade", "confidence", "riskPct", "feeRiskPct", "planRR", "adherenceScore", "violations", "notes"];
+      const lines = [headers.join(",")];
+      state.trades.forEach(t => {
+        lines.push(headers.map(h => `"${String(t[h] ?? "").replaceAll("\"", "\"\"")}"`).join(","));
+      });
+      download(new Blob([lines.join("\n")], { type: "text/csv" }), `zentrix-trades-${Date.now()}.csv`);
+    }
+
+    function download(blob, name) {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = name;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function importJSON(file) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const data = JSON.parse(String(reader.result || "[]"));
+          if (!Array.isArray(data)) throw new Error("bad");
+          state.trades = data.map(item => {
+            const base = {
+              id: item.id || crypto.randomUUID(),
+              createdAt: Number(item.createdAt) || Date.now(),
+              date: item.date || today(),
+              market: item.market || "Crypto",
+              symbol: String(item.symbol || "").toUpperCase(),
+              direction: item.direction === "SHORT" ? "SHORT" : "LONG",
+              entry: toNum(item.entry),
+              exit: toNum(item.exit),
+              stop: toNum(item.stop),
+              risk: toNum(item.risk),
+              size: toNum(item.size),
+              fees: toNum(item.fees),
+              account: toNum(item.account),
+              planEntry: toNum(item.planEntry),
+              planStop: toNum(item.planStop),
+              planTarget: toNum(item.planTarget),
+              strategy: String(item.strategy || ""),
+              timeframe: String(item.timeframe || ""),
+              setup: String(item.setup || ""),
+              emotion: String(item.emotion || ""),
+              tags: String(item.tags || ""),
+              notes: String(item.notes || "")
+            };
+            return { ...base, ...calcMetrics(base) };
+          });
+          saveJSON(KEY_TRADES, state.trades);
+          renderAll();
+          notify("Import complete");
+        } catch {
+          alert("Invalid JSON backup file.");
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function saveNotes() {
+      state.notes = {
+        lessons: document.getElementById("n-lessons").value,
+        mistakes: document.getElementById("n-mistakes").value,
+        rules: document.getElementById("n-rules").value,
+        market: document.getElementById("n-market").value
+      };
+      saveJSON(KEY_NOTES, state.notes);
+      refs.notesStatus.textContent = "Notes saved";
+      setTimeout(() => { refs.notesStatus.textContent = "Notes auto-save enabled."; }, 900);
+    }
+
+    function bindNotes() {
+      document.getElementById("n-lessons").value = state.notes.lessons || "";
+      document.getElementById("n-mistakes").value = state.notes.mistakes || "";
+      document.getElementById("n-rules").value = state.notes.rules || "";
+      document.getElementById("n-market").value = state.notes.market || "";
+      ["n-lessons", "n-mistakes", "n-rules", "n-market"].forEach(id => {
+        document.getElementById(id).addEventListener("input", saveNotes);
+      });
+    }
+
+    function escapeHtml(str) {
+      return String(str)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll("\"", "&quot;");
+    }
+
+    function renderAll() {
+      renderRows();
+      renderStats();
+      renderBars();
+      renderEquity();
+      renderAnalytics();
+    }
+
+    function attachEvents() {
+      refs.tabs.forEach(btn => {
+        btn.addEventListener("click", () => {
+          refs.tabs.forEach(x => x.classList.remove("active"));
+          btn.classList.add("active");
+          const tab = btn.getAttribute("data-tab");
+          Object.values(refs.tabBodies).forEach(x => x.classList.remove("active"));
+          refs.tabBodies[tab].classList.add("active");
+        });
+      });
+
+      document.getElementById("add-trade-btn").addEventListener("click", addTrade);
+      document.getElementById("export-json-btn").addEventListener("click", exportJSON);
+      document.getElementById("export-csv-btn").addEventListener("click", exportCSV);
+      document.getElementById("import-btn").addEventListener("click", () => document.getElementById("import-file").click());
+      document.getElementById("import-file").addEventListener("change", e => {
+        const file = e.target.files && e.target.files[0];
+        if (file) importJSON(file);
+        e.target.value = "";
+      });
+
+      document.getElementById("clear-trades-btn").addEventListener("click", () => {
+        if (!confirm("Delete all trades?")) return;
+        state.trades = [];
+        saveJSON(KEY_TRADES, state.trades);
+        renderAll();
+      });
+
+      Object.values(flt).forEach(el => {
+        el.addEventListener("input", renderRows);
+        el.addEventListener("change", renderRows);
+      });
+
+      document.getElementById("close-edit-btn").addEventListener("click", () => refs.editModal.classList.remove("open"));
+      document.getElementById("save-edit-btn").addEventListener("click", saveEdit);
+      document.getElementById("save-policy-btn").addEventListener("click", savePolicy);
+      refs.editModal.addEventListener("click", e => {
+        if (e.target === refs.editModal) refs.editModal.classList.remove("open");
+      });
+    }
+
+    function savePolicy() {
+      state.policy.maxRiskPct = Math.max(0, toNum(document.getElementById("p-max-risk-pct").value) || DEFAULT_POLICY.maxRiskPct);
+      state.policy.minRR = Math.max(0, toNum(document.getElementById("p-min-rr").value) || DEFAULT_POLICY.minRR);
+      state.policy.maxFeesPctOfRisk = Math.max(0, toNum(document.getElementById("p-max-fees-pct").value) || DEFAULT_POLICY.maxFeesPctOfRisk);
+      state.policy.dailyLossCapPct = Math.max(0, toNum(document.getElementById("p-daily-loss-pct").value) || DEFAULT_POLICY.dailyLossCapPct);
+      state.policy.maxConsecutiveLosses = Math.max(1, Math.floor(toNum(document.getElementById("p-max-consec-loss").value) || DEFAULT_POLICY.maxConsecutiveLosses));
+      state.policy.scope = document.getElementById("p-scope").value || DEFAULT_POLICY.scope;
+      state.policy.scopeMarket = document.getElementById("p-scope-market").value || DEFAULT_POLICY.scopeMarket;
+      saveJSON(KEY_POLICY, state.policy);
+
+      // Re-evaluate all existing trades under the new policy.
+      state.trades = state.trades.map(t => ({ ...t, ...calcMetrics(t) }));
+      saveJSON(KEY_TRADES, state.trades);
+      renderAll();
+      notify("Policy saved");
+    }
+
+    function init() {
+      refs.storageKey.textContent = `${KEY_TRADES} / ${KEY_NOTES}`;
+      form.date.value = today();
+      document.getElementById("p-max-risk-pct").value = state.policy.maxRiskPct;
+      document.getElementById("p-min-rr").value = state.policy.minRR;
+      document.getElementById("p-max-fees-pct").value = state.policy.maxFeesPctOfRisk;
+      document.getElementById("p-daily-loss-pct").value = state.policy.dailyLossCapPct;
+      document.getElementById("p-max-consec-loss").value = state.policy.maxConsecutiveLosses;
+      document.getElementById("p-scope").value = state.policy.scope;
+      document.getElementById("p-scope-market").value = state.policy.scopeMarket;
+      bindNotes();
+      attachEvents();
+      renderAll();
+    }
+
+    init();
+  </script>
+</body>
+</html>
